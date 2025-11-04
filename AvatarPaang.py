@@ -1,0 +1,178 @@
+import sys
+
+import pygame
+import pygame.locals
+import random
+
+import math
+
+import time
+
+
+WIDTH, HEIGHT = 1280, 720
+
+
+class Player1:
+
+    def __init__(self, screen: pygame.Surface):
+        self.x = screen.get_width() * (9 / 10)
+        self.y = screen.get_height() * (9 / 10)
+        self.vy = 0
+        self.ay = 0
+        self.radius = 30
+        self.screen = screen
+
+    def update(self, keys_held: set[int], ice1: bool) -> None:
+        self.ax, self.ay = 0, 0
+        if ice1:
+            if pygame.K_UP in keys_held and self.y > 0:
+                self.ay -= 0.3
+            if pygame.K_DOWN in keys_held and self.y < 650:
+                self.ay += 0.3
+            if self.y<0 or self.y>650:
+                self.vy=0
+            self.vy += self.ay
+            self.y += self.vy
+            self.vy *= 0.97
+            pygame.draw.line(
+                self.screen, "#FFFFFF", (self.x, self.y), (self.x, self.y + 70), 5
+            )
+        else:
+            if pygame.K_UP in keys_held and self.y > 0:
+                self.vy = -7
+            if pygame.K_DOWN in keys_held and self.y < 650:
+                self.vy = 7
+            self.y += self.vy
+            self.vy = 0
+
+            pygame.draw.line(
+                self.screen, "#FFFFFF", (self.x, self.y), (self.x, self.y + 70), 5
+            )
+
+
+class Player2:
+
+    def __init__(self, screen: pygame.Surface):
+        self.x = screen.get_width() // 10
+        self.y = screen.get_height() // 10
+        self.vy = 0
+        self.ay = 0
+        self.radius = 30
+        self.screen = screen
+
+    def update(self, keys_held: set[int], ice2: bool) -> None:
+        self.ax, self.ay = 0, 0
+        if ice2:
+            if pygame.K_w in keys_held and self.y > 0:
+                self.ay -= 0.3
+            if pygame.K_s in keys_held and self.y < 650:
+                self.ay += 0.3
+            if self.y<0 or self.y>650:
+                self.vy=0
+            self.vy += self.ay
+            self.y += self.vy
+            self.vy *= 0.97
+            pygame.draw.line(
+                self.screen, "#FFFFFF", (self.x, self.y), (self.x, self.y + 70), 5
+            )
+        else:
+            if pygame.K_w in keys_held and self.y > 0:
+                self.vy = -7
+            if pygame.K_s in keys_held and self.y < 650:
+                self.vy = 7
+            self.y += self.vy
+            self.vy = 0
+
+            pygame.draw.line(
+                self.screen, "#FFFFFF", (self.x, self.y), (self.x, self.y + 70), 5
+            )
+
+
+class Ball:
+
+    def __init__(self, x: float, y: float):
+        self.x = x
+        self.y = y
+        self.vx = 5
+        self.vy = 5
+        self.color = (255, 255, 255)
+        self.radius = 5
+
+    def update(self, screen: pygame.Surface) -> None:
+        self.screen = screen
+        if self.y <= self.radius or self.y >= screen.get_height() - self.radius:
+            self.vy *= -1
+        if self.x <= (self.radius) * -1 or self.x >= screen.get_width() + self.radius:
+            self.vx *= -1
+            # pygame.draw.circle(screen, "#FFFFFF", (screen.get_width()//2, self.y), self.radius)
+            # time.sleep(3)
+            self.x = screen.get_width() // 2
+        self.x += self.vx
+        self.y += self.vy
+        pygame.draw.circle(screen, self.color, (self.x, self.y), self.radius)
+
+
+# class Coin:
+
+# def __init__(self,screen:pygame.Surface)-> None:
+# self.screen=screen
+# self.radius=10
+# self.x=random.uniform(0,screen.get_width())
+# self.y=random.uniform(0,screen.get_height())
+
+# def update(self, player: Player1)->None:
+# d=math.dist((self.x,self.y),(player.x,player.y))
+# if d<self.radius+player.radius:
+# self.x=random.uniform(0,self.screen.get_width())
+# self.y=random.uniform(0,self.screen.get_height())
+# pygame.draw.circle(self.screen,"#FFFFFF", (self.x,self.y),self.radius)
+
+
+def main():
+    fps = 60
+    fps_clock = pygame.time.Clock()
+    pygame.init()
+    screen = pygame.display.set_mode((WIDTH, HEIGHT))
+    player1 = Player1(screen)
+    player2 = Player2(screen)
+    keys_held = set()
+
+    # coins=[Coin(screen) for _ in range(10)]
+
+    ball = Ball(screen.get_width() / 2, screen.get_height() / 2)
+
+    ice1 = False 
+    ice2 = False
+    toomanyballs1=False
+    toomanyballs2=False
+    fastball1 = False
+    fastball2 = False
+    wind1 = False
+    wind2 = False
+
+    while True:
+        screen.fill("#000000")
+
+        for event in pygame.event.get():
+            if event.type == pygame.locals.QUIT:
+                pygame.quit()
+                sys.exit()
+
+            if event.type == pygame.locals.KEYDOWN:
+                keys_held.add(event.key)
+            if event.type == pygame.locals.KEYUP:
+                keys_held.remove(event.key)
+        player1.update(keys_held, ice1)
+        player2.update(keys_held, ice2)
+
+        # for coin in coins:
+        # coin.update(player1)
+
+        ball.update(screen)
+
+        pygame.display.flip()
+        fps_clock.tick(fps)
+
+
+if __name__ == "__main__":
+    main()
