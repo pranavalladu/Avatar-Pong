@@ -21,6 +21,7 @@ class Player1:
         self.ay = 0
         self.radius = 30
         self.screen = screen
+        self.score = 0
 
     def update(self, keys_held: set[int], ice1: bool) -> None:
         self.ax, self.ay = 0, 0
@@ -59,6 +60,7 @@ class Player2:
         self.ay = 0
         self.radius = 30
         self.screen = screen
+        self.score = 0
 
     def update(self, keys_held: set[int], ice2: bool) -> None:
         self.ax, self.ay = 0, 0
@@ -152,7 +154,7 @@ def main():
     # coins=[Coin(screen) for _ in range(10)]
 
     ball = Ball(screen.get_width() / 2, screen.get_height() / 2)
-
+    
     ice1 = False 
     ice2 = False
     toomanyballs1=False
@@ -176,6 +178,19 @@ def main():
                 keys_held.remove(event.key)
         player1.update(keys_held, ice1)
         player2.update(keys_held, ice2)
+
+        if ball.x < 0:
+            player2.score += 1
+        elif ball.x > WIDTH:
+            player1.score += 1
+
+        font = pygame.font.SysFont("Arial", 20)
+        text_color = (255, 255, 255)
+        score_left = font.render(str(player1.score), True, text_color)
+        score_right = font.render(str(player2.score), True, text_color)
+        screen.blit(score_left, (WIDTH//4, 20))
+        screen.blit(score_right, (WIDTH*3//4, 20))
+
 
         # for coin in coins:
         # coin.update(player1)
