@@ -100,7 +100,7 @@ class Ball:
         self.color = (255, 255, 255)
         self.radius = 5
 
-    def update(self, screen: pygame.Surface) -> None:
+    def update(self, screen: pygame.Surface, player1: Player1, player2: Player2) -> None:
         self.screen = screen
         if self.y <= self.radius or self.y >= screen.get_height() - self.radius:
             self.vy *= -1
@@ -109,6 +109,12 @@ class Ball:
             # pygame.draw.circle(screen, "#FFFFFF", (screen.get_width()//2, self.y), self.radius)
             # time.sleep(3)
             self.x = screen.get_width() // 2
+        
+        if (self.vy/self.vx)*(player1.x-self.x)+self.y > player1.y and (self.vy/self.vx)*(player1.x-self.x)+self.y < (player1.y+70) and self.x<player1.x+5 and self.x>player1.x-5:
+            self.vx*=-1
+        if (self.vy/self.vx)*(player2.x-self.x)+self.y > player2.y and (self.vy/self.vx)*(player2.x-self.x)+self.y < (player2.y+70) and self.x<player2.x+5 and self.x>player2.x-5:
+            self.vx*=-1
+
         self.x += self.vx
         self.y += self.vy
         pygame.draw.circle(screen, self.color, (self.x, self.y), self.radius)
@@ -179,7 +185,7 @@ def main():
         # for coin in coins:
         # coin.update(player1)
 
-        ball.update(screen)
+        ball.update(screen, player1, player2)
 
         pygame.display.flip()
         fps_clock.tick(fps)
