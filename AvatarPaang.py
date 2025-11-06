@@ -62,7 +62,7 @@ class Player2:
 
     def update(self, keys_held: set[int], ice2: bool) -> None:
         self.ax, self.ay = 0, 0
-        if ice2:
+        while ice2:
             if pygame.K_w in keys_held and self.y > 0:
                 self.ay -= 0.3
             if pygame.K_s in keys_held and self.y < 650:
@@ -98,7 +98,7 @@ class Ball:
         self.color = (255, 255, 255)
         self.radius = 5
 
-    def update(self, screen: pygame.Surface, player1: Player1, player2: Player2) -> None:
+    def update(self, screen: pygame.Surface, player1: Player1, player2: Player2, fastball1:bool, wind1:bool, fastball2:bool, wind2:bool) -> None:
         self.screen = screen
         if self.y <= self.radius or self.y >= screen.get_height() - self.radius:
             self.vy *= -1
@@ -113,6 +113,12 @@ class Ball:
         if (self.vy/self.vx)*(player2.x-self.x)+self.y > player2.y and (self.vy/self.vx)*(player2.x-self.x)+self.y < (player2.y+70) and self.x<player2.x+5 and self.x>player2.x-5:
             self.vx*=-1
 
+        if wind1 and self.x>WIDTH//2:
+            ...
+        if wind2 and self.x<WIDTH//2:
+            ...
+        if wind1==False:
+            ...
         self.x += self.vx
         self.y += self.vy
         pygame.draw.circle(screen, self.color, (self.x, self.y), self.radius)
@@ -153,7 +159,7 @@ def main():
     toomanyballs2=False
     fastball1 = False
     fastball2 = False
-    wind1 = False
+    wind1 = True
     wind2 = False
 
     while True:
@@ -174,7 +180,7 @@ def main():
         # for coin in coins:
         # coin.update(player1)
 
-        ball.update(screen, player1, player2)
+        ball.update(screen, player1, player2, fastball1, wind1, fastball2, wind2)
 
         pygame.display.flip()
         fps_clock.tick(fps)
