@@ -36,7 +36,7 @@ class Player1:
             self.y += self.vy
             self.vy *= 0.97
             pygame.draw.line(
-                self.screen, "#FFFFFF", (self.x, self.y), (self.x, self.y + 70), 5
+                self.screen, "#FFFFFF", (self.x, self.y), (self.x, self.y + 70), 10
             )
         else:
             if pygame.K_UP in keys_held and self.y > 0:
@@ -47,7 +47,7 @@ class Player1:
             self.vy = 0
 
             pygame.draw.line(
-                self.screen, "#FFFFFF", (self.x, self.y), (self.x, self.y + 70), 5
+                self.screen, "#FFFFFF", (self.x, self.y), (self.x, self.y + 70), 10
             )
 
 
@@ -75,7 +75,7 @@ class Player2:
             self.y += self.vy
             self.vy *= 0.97
             pygame.draw.line(
-                self.screen, "#FFFFFF", (self.x, self.y), (self.x, self.y + 70), 5
+                self.screen, "#FFFFFF", (self.x, self.y), (self.x, self.y + 70), 10
             )
         else:
             if pygame.K_w in keys_held and self.y > 0:
@@ -86,7 +86,7 @@ class Player2:
             self.vy = 0
 
             pygame.draw.line(
-                self.screen, "#FFFFFF", (self.x, self.y), (self.x, self.y + 70), 5
+                self.screen, "#FFFFFF", (self.x, self.y), (self.x, self.y + 70), 10
             )
 
 
@@ -116,11 +116,14 @@ class Ball:
             self.vx*=-1
 
         if wind1 and self.x>WIDTH//2:
-            ...
+            self.ay
         if wind2 and self.x<WIDTH//2:
             ...
         if wind1==False:
-            ...
+            self.vy=5
+            self.vy=5
+        if self.vy>20:
+            self.vy=20
         self.x += self.vx
         self.y += self.vy
         pygame.draw.circle(screen, self.color, (self.x, self.y), self.radius)
