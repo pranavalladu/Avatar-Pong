@@ -99,6 +99,7 @@ class Ball:
         self.vy = 5
         self.color = (255, 255, 255)
         self.radius = 5
+        self.__annotations__
 
     def update(self, screen: pygame.Surface, player1: Player1, player2: Player2, fastball1:bool, wind1:bool, fastball2:bool, wind2:bool) -> None:
         self.screen = screen
@@ -110,20 +111,29 @@ class Ball:
             # time.sleep(3)
             self.x = screen.get_width() // 2
         
-        if (self.vy/self.vx)*(player1.x-self.x)+self.y > player1.y and (self.vy/self.vx)*(player1.x-self.x)+self.y < (player1.y+70) and self.x<player1.x+5 and self.x>player1.x-5:
+        if (self.vy/self.vx)*(player1.x-self.x)+self.y > player1.y and (self.vy/self.vx)*(player1.x-self.x)+self.y < (player1.y+70) and self.x<player1.x+10 and self.x>player1.x-10:
             self.vx*=-1
-        if (self.vy/self.vx)*(player2.x-self.x)+self.y > player2.y and (self.vy/self.vx)*(player2.x-self.x)+self.y < (player2.y+70) and self.x<player2.x+5 and self.x>player2.x-5:
+        if (self.vy/self.vx)*(player2.x-self.x)+self.y > player2.y and (self.vy/self.vx)*(player2.x-self.x)+self.y < (player2.y+70) and self.x<player2.x+10 and self.x>player2.x-10:
             self.vx*=-1
 
         if wind1 and self.x>WIDTH//2:
-            self.ay
+            ...
         if wind2 and self.x<WIDTH//2:
             ...
-        if wind1==False:
+        if not wind1 and self.x>WIDTH//2:
+            self.vx=5
             self.vy=5
+            #self.ax=0
+            #self.ay=0
+        if not wind2 and self.x<WIDTH//2:
+            self.vx=5
             self.vy=5
-        if self.vy>20:
-            self.vy=20
+            #self.ax=0
+            #self.ay=0
+        if self.vx>10:
+            self.vx=10
+        if self.vy>10:
+            self.vy=10
         self.x += self.vx
         self.y += self.vy
         pygame.draw.circle(screen, self.color, (self.x, self.y), self.radius)
