@@ -146,8 +146,9 @@ class Ball:
         if self.vy<-10:
             self.vy=-10
         if wind1 == True and pygame.K_LSHIFT in keys_held:
-            self.x += self.vx
-            self.y += self.vy
+            ...
+        self.x += self.vx
+        self.y += self.vy
         pygame.draw.circle(screen, self.color, (self.x, self.y), self.radius)
 
 
