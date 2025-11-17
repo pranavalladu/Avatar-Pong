@@ -99,14 +99,19 @@ class Ball:
         self.vy = 5
         self.color = (255, 255, 255)
         self.radius = 5
-        self.__annotations__
+        self.wind_angle = 0
+        self.wind_speed = 5
+        self.pausetime = -1
 
-    def update(self, screen: pygame.Surface, player1: Player1, player2: Player2, fastball1:bool, wind1:bool, fastball2:bool, wind2:bool) -> None:
+    def update(self, keys_held, screen: pygame.Surface, player1: Player1, player2: Player2, fastball1:bool, wind1:bool, fastball2:bool, wind2:bool) -> None:
         self.screen = screen
         if self.y <= self.radius or self.y >= screen.get_height() - self.radius:
             self.vy *= -1
+            self.y = screen.get_width // 2
+
         if self.x <= (self.radius) * -1 or self.x >= screen.get_width() + self.radius:
             self.vx *= -1
+            self.pausetime=time.monotonic+2
             # pygame.draw.circle(screen, "#FFFFFF", (screen.get_width()//2, self.y), self.radius)
             # time.sleep(3)
             self.x = screen.get_width() // 2
@@ -117,23 +122,30 @@ class Ball:
             self.vx*=-1
 
         if wind1 and self.x>WIDTH//2:
-            ...
+            self.wind_angle+=5
         if wind2 and self.x<WIDTH//2:
             ...
         if not wind1 and self.x>WIDTH//2:
-            self.vx=5
-            self.vy=5
+            ...
+            #self.vx=5
+            #self.vy=5
             #self.ax=0
             #self.ay=0
         if not wind2 and self.x<WIDTH//2:
-            self.vx=5
-            self.vy=5
+            ...
+            #self.vx=5
+            #self.vy=5
             #self.ax=0
             #self.ay=0
         if self.vx>10:
             self.vx=10
         if self.vy>10:
             self.vy=10
+        if self.vx<-10:
+            self.vx=-10
+        if self.vy<-10:
+            self.vy=-10
+        if wind1 == True and pygame.K_LSHIFT in keys_held:
         self.x += self.vx
         self.y += self.vy
         pygame.draw.circle(screen, self.color, (self.x, self.y), self.radius)
@@ -170,12 +182,18 @@ def main():
     
     ice1 = False 
     ice2 = False
-    toomanyballs1=False
-    toomanyballs2=False
+    toomanyballs1 = False
+    toomanyballs2 = False
     fastball1 = False
     fastball2 = False
-    wind1 = True
+    wind1 = False
     wind2 = False
+
+    p1_effects=[ice1,toomanyballs1,fastball1,wind1]
+    p2_effects=[ice2,toomanyballs2,fastball2,wind2]
+
+    resume_time1 = -1
+    resume_time1 = -1
 
     while True:
         screen.fill("#000000")
@@ -191,6 +209,18 @@ def main():
                 keys_held.remove(event.key)
         player1.update(keys_held, ice1)
         player2.update(keys_held, ice2)
+        
+        if ice1 == False and toomanyballs1 == False and fastball1 == False and wind1 == False:
+            resume_time1=time.monotonic()+3
+            if time.monotonic()>resume_time1:
+                p1_effects[random.randint(0,3)] = True
+
+        if ice2 == False and toomanyballs2 == False and fastball2 == False and wind2 == False:
+            resume_time2=time.monotonic()+3
+            if time.monotonic()>resume_time2:
+                p1_effects[random.randint(0,3)] = True
+
+
 
         if ball.x < 0:
             player2.score += 1
@@ -208,7 +238,7 @@ def main():
         # for coin in coins:
         # coin.update(player1)
 
-        ball.update(screen, player1, player2, fastball1, wind1, fastball2, wind2)
+        ball.update(screen, keys_held, player1, player2, fastball1, wind1, fastball2, wind2)
 
         pygame.display.flip()
         fps_clock.tick(fps)
