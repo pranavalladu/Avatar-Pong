@@ -109,13 +109,9 @@ class Ball:
         self.screen = screen
         if self.y <= self.radius or self.y >= screen.get_height() - self.radius:
             self.vy *= -1
-            self.y = screen.get_width // 2
 
         if self.x <= (self.radius) * -1 or self.x >= screen.get_width() + self.radius:
             self.vx *= -1
-            self.pausetime=time.monotonic+2
-            # pygame.draw.circle(screen, "#FFFFFF", (screen.get_width()//2, self.y), self.radius)
-            # time.sleep(3)
             self.x = screen.get_width() // 2
         
         if (self.vy/self.vx)*(player1.x-self.x)+self.y > player1.y and (self.vy/self.vx)*(player1.x-self.x)+self.y < (player1.y+70) and self.x<player1.x+10 and self.x>player1.x-10:
@@ -225,7 +221,7 @@ def main():
         # for coin in coins:
         # coin.update(player1)
 
-        ball.update(screen, keys_held, player1, player2, fastball1, wind1, fastball2, wind2)
+        ball.update(keys_held, screen, player1, player2, fastball1, wind1, fastball2, wind2)
 
         pygame.display.flip()
         fps_clock.tick(fps)
