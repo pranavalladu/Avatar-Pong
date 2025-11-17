@@ -9,8 +9,10 @@ import math
 import time
 
 
-WIDTH, HEIGHT = 1280, 720
+WIDTH, HEIGHT = 274*3, 183*3
 
+background = pygame.image.load("avatar-map.jpeg")
+pygame.transform.scale(background, (WIDTH, HEIGHT))
 
 class Player1:
 
@@ -152,21 +154,6 @@ class Ball:
         pygame.draw.circle(screen, self.color, (self.x, self.y), self.radius)
 
 
-# class Coin:
-
-# def __init__(self,screen:pygame.Surface)-> None:
-# self.screen=screen
-# self.radius=10
-# self.x=random.uniform(0,screen.get_width())
-# self.y=random.uniform(0,screen.get_height())
-
-# def update(self, player: Player1)->None:
-# d=math.dist((self.x,self.y),(player.x,player.y))
-# if d<self.radius+player.radius:
-# self.x=random.uniform(0,self.screen.get_width())
-# self.y=random.uniform(0,self.screen.get_height())
-# pygame.draw.circle(self.screen,"#FFFFFF", (self.x,self.y),self.radius)
-
 
 def main():
     fps = 60
@@ -176,8 +163,6 @@ def main():
     player1 = Player1(screen)
     player2 = Player2(screen)
     keys_held = set()
-
-    # coins=[Coin(screen) for _ in range(10)]
 
     ball = Ball(screen.get_width() / 2, screen.get_height() / 2)
     
@@ -229,7 +214,6 @@ def main():
             player2.score += 1
         elif ball.x > WIDTH:
             player1.score += 1
-
         font = pygame.font.SysFont("Arial", 20)
         text_color = (255, 255, 255)
         score_left = font.render(str(player1.score), True, text_color)
