@@ -9,8 +9,10 @@ import math
 import time
 
 
-WIDTH, HEIGHT = 1000, 600
+WIDTH, HEIGHT = 274*3, 183*3
 
+background = pygame.image.load("avatar-map.jpeg")
+pygame.transform.scale(background, (WIDTH, HEIGHT))
 
 class Player1:
 
@@ -116,7 +118,7 @@ class Ball:
             self.vx*=-1
 
         if wind1 and self.x>WIDTH//2:
-            self.ay
+            ...
         if wind2 and self.x<WIDTH//2:
             ...
         if wind1==False:
@@ -143,11 +145,11 @@ def main():
     
     ice1 = False 
     ice2 = False
-    toomanyballs1=False
-    toomanyballs2=False
+    toomanyballs1 = False
+    toomanyballs2 = False
     fastball1 = False
     fastball2 = False
-    wind1 = True
+    wind1 = False
     wind2 = False
 
     while True:
