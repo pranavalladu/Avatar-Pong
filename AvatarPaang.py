@@ -26,7 +26,7 @@ class Player1:
         self.ay = 0
         self.screen = screen
         self.score = 0
-        self.wind = False
+        self.wind = True########
 
     def update(self, keys_held: set[int], ice1: bool) -> None:
         self.ax, self.ay = 0, 0
@@ -120,9 +120,7 @@ class Ball:
         player1: Player1,
         player2: Player2,
         fastball1: bool,
-        wind1: bool,
         fastball2: bool,
-        wind2: bool,
     ) -> None:
         self.screen = screen
         # If hit top, then bounce
@@ -148,23 +146,23 @@ class Ball:
         ):
             self.vx *= -1
         # if wind, do wind things
-        if wind1 and self.x > WIDTH // 2:
+        if player1.wind and self.x > WIDTH // 2:
             self.wind_angle += 0.01
             self.in_wind = True
             self.ax = (1 / 2) * math.cos(self.wind_angle) * self.windspeed
             self.ay = (2) * math.sin(self.wind_angle) * self.windspeed
-        if wind2 and self.x < WIDTH // 2:
+        if player2.wind and self.x < WIDTH // 2:
             self.wind_angle += 0.01
             self.in_wind = True
         # if not wind, set everything back to normal
-        if not wind1 and self.x > WIDTH // 2 and self.in_wind == True:
+        if not player1.wind and self.x > WIDTH // 2 and self.in_wind == True:
             self.in_wind = False
             self.vx = 5
             if self.vy >= 0:
                 self.vy = 5
             elif self.vy < 0:
                 self.vy = -5
-        if not wind2 and self.x < WIDTH // 2 and self.in_wind == True:
+        if not player2.wind and self.x < WIDTH // 2 and self.in_wind == True:
             self.in_wind = False
             self.vx = -5
             if self.vy >= 0:
@@ -181,12 +179,12 @@ class Ball:
         if self.vy < -10:
             self.vy = -10
         # activate ability
-        if wind1 and pygame.K_RSHIFT in keys_held:
+        if player1.wind and pygame.K_RSHIFT in keys_held:
             self.vx *= -1
-            wind1 = False
-        if wind2 and pygame.K_LSHIFT in keys_held:
+            player1.wind = False
+        if player2.wind and pygame.K_LSHIFT in keys_held:
             self.vx *= -1
-            wind2 = False
+            player2.wind = False
         # final movement
         self.vx += self.ax
         self.vy += self.ay
@@ -216,11 +214,9 @@ def main():
     toomanyballs2 = False
     fastball1 = False
     fastball2 = False
-    wind1 = True
-    wind2 = False
 
-    p1_effects = [ice1, toomanyballs1, fastball1, wind1]
-    p2_effects = [ice2, toomanyballs2, fastball2, wind2]
+    p1_effects = [ice1, toomanyballs1, fastball1, player1.wind]
+    p2_effects = [ice2, toomanyballs2, fastball2, player2.wind]
 
     resume_time1 = -1
     resume_time1 = -1
@@ -245,7 +241,7 @@ def main():
             ice1 == False
             and toomanyballs1 == False
             and fastball1 == False
-            and wind1 == False
+            and player1.wind == False
         ):
             resume_time1 = time.monotonic() + 3
             if time.monotonic() > resume_time1:
@@ -255,7 +251,7 @@ def main():
             ice2 == False
             and toomanyballs2 == False
             and fastball2 == False
-            and wind2 == False
+            and player2.wind == False
         ):
             resume_time2 = time.monotonic() + 3
             if time.monotonic() > resume_time2:
@@ -277,7 +273,7 @@ def main():
         # coin.update(player1)
 
         ball.update(
-            keys_held, screen, player1, player2, fastball1, wind1, fastball2, wind2
+            keys_held, screen, player1, player2, fastball1, fastball2
         )
 
         pygame.display.flip()
