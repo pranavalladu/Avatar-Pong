@@ -11,8 +11,11 @@ import time
 
 WIDTH, HEIGHT = 822, 549
 
-background = pygame.image.load("avatar-map.jpeg")
-pygame.transform.scale(background, (WIDTH, HEIGHT))
+#background = pygame.image.load("avatar-map.jpeg")
+#pygame.transform.scale(background, (WIDTH, HEIGHT))
+
+img = pygame.image.load("avatar-map.jpeg")
+
 
 class Player1:
 
@@ -65,7 +68,7 @@ class Player2:
 
     def update(self, keys_held: set[int], ice2: bool) -> None:
         self.ax, self.ay = 0, 0
-        while ice2:
+        if ice2:
             if pygame.K_w in keys_held and self.y > 0:
                 self.ay -= 0.3
             if pygame.K_s in keys_held and self.y < HEIGHT-70:
