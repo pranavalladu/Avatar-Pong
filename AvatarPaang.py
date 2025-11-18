@@ -9,7 +9,7 @@ import math
 import time
 
 
-WIDTH, HEIGHT = 274*3, 183*3
+WIDTH, HEIGHT = 822, 549
 
 background = pygame.image.load("avatar-map.jpeg")
 pygame.transform.scale(background, (WIDTH, HEIGHT))
