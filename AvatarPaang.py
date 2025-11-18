@@ -104,6 +104,8 @@ class Ball:
         self.wind_speed = 5
         self.pausetime = -1
         self.in_wind=False
+        self.ax=0
+        self.ay=0
 
     def update(self, keys_held, screen: pygame.Surface, player1: Player1, player2: Player2, fastball1:bool, wind1:bool, fastball2:bool, wind2:bool) -> None:
         self.screen = screen
@@ -123,19 +125,21 @@ class Ball:
         if wind1 and self.x>WIDTH//2:
             self.wind_angle+=5
             self.in_wind=True
+            self.ax=...
+            self.ay=...
         if wind2 and self.x<WIDTH//2:
             self.wind_angle+=5
             self.in_wind=True
         #if not wind, set everything back to normal
         if not wind1 and self.x>WIDTH//2 and self.in_wind==True:
-            in_wind=False
+            self.in_wind=False
             self.vx=5
             if self.vy >= 0:
                 self.vy=5
             elif self.vy < 0:
                 self.vy = -5
         if not wind2 and self.x<WIDTH//2 and self.in_wind==True:
-            in_wind=False
+            self.in_wind=False
             self.vx=-5
             if self.vy >= 0:
                 self.vy=5
@@ -151,11 +155,18 @@ class Ball:
         if self.vy<-10:
             self.vy=-10
         #activate ability
-        if wind1 == True and pygame.K_LSHIFT in keys_held:
-            ...
+        if wind1 == True and pygame.K_RSHIFT in keys_held:
+            self.vx *= -1
+        if wind2 == True and pygame.K_LSHIFT in keys_held:
+            self.vx *= -1
         #final movement
+        self.vx += self.ax
+        self.vy += self.ay
         self.x += self.vx
         self.y += self.vy
+        self.ax = 0
+        self.ay = 0
+        
         #drawing the ball
         pygame.draw.circle(screen, self.color, (self.x, self.y), self.radius)
 
