@@ -21,7 +21,6 @@ class Player1:
         self.y = screen.get_height() * (9 / 10)
         self.vy = 0
         self.ay = 0
-        self.radius = 30
         self.screen = screen
         self.score = 0
 
@@ -30,9 +29,9 @@ class Player1:
         if ice1:
             if pygame.K_UP in keys_held and self.y > 0:
                 self.ay -= 0.3
-            if pygame.K_DOWN in keys_held and self.y < 650:
+            if pygame.K_DOWN in keys_held and self.y < HEIGHT-70:
                 self.ay += 0.3
-            if self.y<0 or self.y>650:
+            if self.y<=0 or self.y >= HEIGHT-70:
                 self.vy=0
             self.vy += self.ay
             self.y += self.vy
@@ -43,7 +42,7 @@ class Player1:
         else:
             if pygame.K_UP in keys_held and self.y > 0:
                 self.vy = -7
-            if pygame.K_DOWN in keys_held and self.y < 650:
+            if pygame.K_DOWN in keys_held and self.y < HEIGHT-70:
                 self.vy = 7
             self.y += self.vy
             self.vy = 0
@@ -69,9 +68,9 @@ class Player2:
         while ice2:
             if pygame.K_w in keys_held and self.y > 0:
                 self.ay -= 0.3
-            if pygame.K_s in keys_held and self.y < 650:
+            if pygame.K_s in keys_held and self.y < HEIGHT-70:
                 self.ay += 0.3
-            if self.y<0 or self.y>650:
+            if self.y<0 or self.y>HEIGHT-70:
                 self.vy=0
             self.vy += self.ay
             self.y += self.vy
@@ -82,7 +81,7 @@ class Player2:
         else:
             if pygame.K_w in keys_held and self.y > 0:
                 self.vy = -7
-            if pygame.K_s in keys_held and self.y < 650:
+            if pygame.K_s in keys_held and self.y < HEIGHT-70:
                 self.vy = 7
             self.y += self.vy
             self.vy = 0
@@ -104,37 +103,45 @@ class Ball:
         self.wind_angle = 0
         self.wind_speed = 5
         self.pausetime = -1
+        self.in_wind=False
 
     def update(self, keys_held, screen: pygame.Surface, player1: Player1, player2: Player2, fastball1:bool, wind1:bool, fastball2:bool, wind2:bool) -> None:
         self.screen = screen
-        if self.y <= self.radius or self.y >= screen.get_height() - self.radius:
+        #If hit top, then bounce
+        if self.y <= self.radius or self.y >= HEIGHT - self.radius:
             self.vy *= -1
-
-        if self.x <= (self.radius) * -1 or self.x >= screen.get_width() + self.radius:
+        #if hit side, then teleport to center
+        if self.x <= (self.radius) * -1 or self.x >= WIDTH + self.radius:
             self.vx *= -1
-            self.x = screen.get_width() // 2
-        
+            self.x = WIDTH // 2
+        #if hit paddle, then bounce
         if (self.vy/self.vx)*(player1.x-self.x)+self.y > player1.y and (self.vy/self.vx)*(player1.x-self.x)+self.y < (player1.y+70) and self.x<player1.x+10 and self.x>player1.x-10:
             self.vx*=-1
         if (self.vy/self.vx)*(player2.x-self.x)+self.y > player2.y and (self.vy/self.vx)*(player2.x-self.x)+self.y < (player2.y+70) and self.x<player2.x+10 and self.x>player2.x-10:
             self.vx*=-1
-
+        #if wind right, left
         if wind1 and self.x>WIDTH//2:
             self.wind_angle+=5
+            self.in_wind=True
         if wind2 and self.x<WIDTH//2:
-            ...
-        if not wind1 and self.x>WIDTH//2:
-            ...
-            #self.vx=5
-            #self.vy=5
-            #self.ax=0
-            #self.ay=0
-        if not wind2 and self.x<WIDTH//2:
-            ...
-            #self.vx=5
-            #self.vy=5
-            #self.ax=0
-            #self.ay=0
+            self.wind_angle+=5
+            self.in_wind=True
+        #if not wind, set everything back to normal
+        if not wind1 and self.x>WIDTH//2 and self.in_wind==True:
+            in_wind=False
+            self.vx=5
+            if self.vy >= 0:
+                self.vy=5
+            elif self.vy < 0:
+                self.vy = -5
+        if not wind2 and self.x<WIDTH//2 and self.in_wind==True:
+            in_wind=False
+            self.vx=-5
+            if self.vy >= 0:
+                self.vy=5
+            elif self.vy < 0:
+                self.vy = -5
+        #max speed
         if self.vx>10:
             self.vx=10
         if self.vy>10:
@@ -143,10 +150,13 @@ class Ball:
             self.vx=-10
         if self.vy<-10:
             self.vy=-10
+        #activate ability
         if wind1 == True and pygame.K_LSHIFT in keys_held:
             ...
+        #final movement
         self.x += self.vx
         self.y += self.vy
+        #drawing the ball
         pygame.draw.circle(screen, self.color, (self.x, self.y), self.radius)
 
 
@@ -205,10 +215,10 @@ def main():
                 p1_effects[random.randint(0,3)] = True
 
 
-
-        if ball.x < 0:
+        #Counting score
+        if ball.x < ball.radius * -1:
             player2.score += 1
-        elif ball.x > WIDTH:
+        elif ball.x > WIDTH + ball.radius:
             player1.score += 1
         font = pygame.font.SysFont("Arial", 20)
         text_color = (255, 255, 255)
