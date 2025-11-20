@@ -31,6 +31,7 @@ class Player1:
         self.fast = False
         self.speedtime = -1
         self.ice = False
+        self.color=(255,255,255)
 
     def update(self, keys_held: set[int]) -> None:
         self.ax, self.ay = 0, 0
@@ -66,9 +67,14 @@ class Player1:
             self.speedtime = time.monotonic() + 3
             self.fast=False
 
+        #color for element
+        if self.ice: self.color=(50,50,255)
+        if self.wind: self.color=(255,150,150)
+        if self.fast: self.color=(255,50,50)
+
 
         pygame.draw.line(
-            self.screen, "#FFFFFF", (self.x, self.y), (self.x, self.y + 70), 10
+            self.screen, self.color, (self.x, self.y), (self.x, self.y + 70), 10
         )
 
 
@@ -86,6 +92,7 @@ class Player2:
         self.fast = False
         self.speedtime = -1
         self.ice = False
+        self.color=(255,255,255)
 
     def update(self, keys_held: set[int]) -> None:
         self.ax, self.ay = 0, 0
@@ -121,8 +128,13 @@ class Player2:
             self.speedtime = time.monotonic() + 3
             self.fast=False
 
+        #color for element
+        if self.ice: self.color=(50,50,255)
+        if self.wind: self.color=(255,150,150)
+        if self.fast: self.color=(255,50,50)
+
         pygame.draw.line(
-            self.screen, "#FFFFFF", (self.x, self.y), (self.x, self.y + 70), 10
+            self.screen, self.color, (self.x, self.y), (self.x, self.y + 70), 10
         )
 
 
@@ -144,6 +156,7 @@ class Ball:
         self.windspeed = 0.1
         self.slowtime = -1
         self.slowtime = -1
+        self.in_speed = False
 
     def update(
         self,
@@ -151,8 +164,6 @@ class Ball:
         screen: pygame.Surface,
         player1: Player1,
         player2: Player2,
-        fastball1: bool,
-        fastball2: bool,
     ) -> None:
         self.screen = screen
 
@@ -234,6 +245,32 @@ class Ball:
             elif self.vy < 0:
                 self.vy = -5
 
+        if player1.fast and self.x > WIDTH // 2:
+            self.in_speed = True
+            self.vx *= 1.5
+            self.vy *= 1.5
+        if player2.fast and self.x < WIDTH // 2:
+            self.in_speed = True
+            self.vx *= 1.5
+            self.vy *= 1.5
+
+        # if not wind, set everything back to normal
+        if not player1.fast and self.x > WIDTH // 2 and self.in_speed == True:
+            self.in_speed = False
+            self.vx = 5
+            if self.vy >= 0:
+                self.vy = 5
+            elif self.vy < 0:
+                self.vy = -5
+        if not player2.fast and self.x < WIDTH // 2 and self.in_speed == True:
+            self.in_speed = False
+            self.vx = -5
+            if self.vy >= 0:
+                self.vy = 5
+            elif self.vy < 0:
+                self.vy = -5
+
+
         # max speed
         if self.vx > 10:
             self.vx = 10
@@ -286,8 +323,8 @@ def main():
     ##pygame.mixer.music.load(pygame.mixer.Sound(bounce_sound))
     ##pygame.mixer.music.load(pygame.mixer.Sound(bouncewall_sound))
 
-    p1_effects = [player1.ice, toomanyballs1, fastball1, player1.wind]
-    p2_effects = [player2.ice, toomanyballs2, fastball2, player2.wind]
+    p1_effects = [player1.ice, toomanyballs1, player2.fast, player1.wind]
+    p2_effects = [player2.ice, toomanyballs2, player2.fast, player2.wind]
 
     resume_time1 = -1
     resume_time1 = -1
@@ -314,9 +351,9 @@ def main():
             and player1.fast == False
             and player1.wind == False
         ):
-            resume_time1 = time.monotonic() + 3
-            if time.monotonic() > resume_time1:
-                p1_effects[random.randint(0, 3)] = True
+            resume_time1 = time.monotonic() + 5
+        if time.monotonic() > resume_time1:
+            p1_effects[random.randint(0, 3)] = True
 
         if (
             player2.ice == False
@@ -324,9 +361,9 @@ def main():
             and player2.fast == False
             and player2.wind == False
         ):
-            resume_time2 = time.monotonic() + 3
-            if time.monotonic() > resume_time2:
-                p1_effects[random.randint(0, 3)] = True
+            resume_time2 = time.monotonic() + 5
+        if time.monotonic() > resume_time2:
+            p2_effects[random.randint(0, 3)] = True
 
         # Counting score
         if ball.x < ball.radius * -1:
@@ -344,7 +381,7 @@ def main():
         # coin.update(player1)
 
         ball.update(
-            keys_held, screen, player1, player2, fastball1, fastball2, 
+            keys_held, screen, player1, player2,
         )
 
         pygame.display.flip()
