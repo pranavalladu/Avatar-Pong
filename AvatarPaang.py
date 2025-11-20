@@ -16,8 +16,8 @@ img = pygame.image.load("avatar-map.jpeg")
 img = pygame.transform.scale(img, (WIDTH, HEIGHT))
 
 earth_img = pygame.image.load("earth_img.jpg")
-water_img = pygame.image.load()
-air_img = pygame.image.load()
+water_img = pygame.image.load("water.png.webp")
+air_img = pygame.image.load("")
 fire_img = pygame.image.load()
 
 #img = pygame.image.load("avatar-map.jpeg")
