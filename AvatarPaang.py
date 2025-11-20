@@ -1,3 +1,4 @@
+#MUSIC FILE USAGE: https://www.pygame.org/docs/ref/music.html
 import sys
 
 import pygame
@@ -38,14 +39,20 @@ class Player1:
         self.ay = 0
         self.screen = screen
         self.score = 0
+        self.wind = False
+        self.fast = False
+        self.speedtime = -1
+        self.ice = False
 
-    def update(self, keys_held: set[int], ice1: bool, earth1: bool) -> None:
+    def update(self, keys_held: set[int], earth1: bool) -> None:
         self.ax, self.ay = 0, 0
-        if ice1:
+        if self.ice:
             if pygame.K_UP in keys_held and self.y > 0:
                 self.ay -= 0.3
             if pygame.K_DOWN in keys_held and self.y < HEIGHT - 70:
                 self.ay += 0.3
+            if self.y <= 0 or self.y >= HEIGHT - 70:
+                self.vy = 0
             if self.y <= 0 or self.y >= HEIGHT - 70:
                 self.vy = 0
             self.vy += self.ay
@@ -73,6 +80,13 @@ class Player1:
                 self.vy = 7
             self.y += self.vy
             self.vy = 0
+        elif self.speedtime>time.monotonic():
+            if pygame.K_UP in keys_held and self.y > 0:
+                self.vy = -11
+            if pygame.K_DOWN in keys_held and self.y < HEIGHT - 70:
+                self.vy = 11
+            self.y += self.vy
+            self.vy = 0
         else:
             if pygame.K_UP in keys_held and self.y > 0:
                 self.vy = -7
@@ -80,10 +94,15 @@ class Player1:
                 self.vy = 7
             self.y += self.vy
             self.vy = 0
+        #speedtime
+        if self.fast==True and pygame.K_RSHIFT in keys_held:
+            self.speedtime = time.monotonic() + 3
+            self.fast=False
 
-            pygame.draw.line(
-                self.screen, "#FFFFFF", (self.x, self.y), (self.x, self.y + 70), 10
-            )
+
+        pygame.draw.line(
+            self.screen, "#FFFFFF", (self.x, self.y), (self.x, self.y + 70), 10
+        )
 
 
 class Player2:
@@ -96,14 +115,20 @@ class Player2:
         self.radius = 30
         self.screen = screen
         self.score = 0
+        self.wind = False
+        self.fast = False
+        self.speedtime = -1
+        self.ice = False
 
-    def update(self, keys_held: set[int], ice2: bool, earth2: bool) -> None:
+    def update(self, keys_held: set[int], earth2: bool) -> None:
         self.ax, self.ay = 0, 0
-        if ice2:
+        if self.ice:
             if pygame.K_w in keys_held and self.y > 0:
                 self.ay -= 0.3
             if pygame.K_s in keys_held and self.y < HEIGHT - 70:
                 self.ay += 0.3
+            if self.y < 0 or self.y > HEIGHT - 70:
+                self.vy = 0
             if self.y < 0 or self.y > HEIGHT - 70:
                 self.vy = 0
             self.vy += self.ay
@@ -112,6 +137,13 @@ class Player2:
             pygame.draw.line(
                 self.screen, "#FFFFFF", (self.x, self.y), (self.x, self.y + 70), 10
             )
+        elif self.speedtime>time.monotonic():
+            if pygame.K_UP in keys_held and self.y > 0:
+                self.vy = -11
+            if pygame.K_DOWN in keys_held and self.y < HEIGHT - 70:
+                self.vy = 11
+            self.y += self.vy
+            self.vy = 0
         if earth2:
             paddle_height = 150
             if self.y < 0:
@@ -139,9 +171,13 @@ class Player2:
             self.y += self.vy
             self.vy = 0
 
-            pygame.draw.line(
-                self.screen, "#FFFFFF", (self.x, self.y), (self.x, self.y + 70), 10
-            )
+        if self.fast==True and pygame.K_RSHIFT in keys_held:
+            self.speedtime = time.monotonic() + 3
+            self.fast=False
+
+        pygame.draw.line(
+            self.screen, "#FFFFFF", (self.x, self.y), (self.x, self.y + 70), 10
+        )
 
 class Earth_ball:
     def __init__(self, x: float, y: float):
@@ -180,6 +216,9 @@ class Ball:
         self.in_wind = False
         self.ax = 0
         self.ay = 0
+        self.windspeed = 0.1
+        self.slowtime = -1
+        self.slowtime = -1
 
     def update(
         self,
@@ -187,62 +226,88 @@ class Ball:
         screen: pygame.Surface,
         player1: Player1,
         player2: Player2,
-        fastball1: bool,
-        wind1: bool,
-        fastball2: bool,
-        wind2: bool,
-        earth1: bool, 
-        earth2: bool
     ) -> None:
         self.screen = screen
-        # If hit top, then bounce
+
+        # If hit top or bottom, then bounce
         if self.y <= self.radius or self.y >= HEIGHT - self.radius:
             self.vy *= -1
+            ##pygame.mixer.music.play(pygame.mixer.Sound(bouncewall_sound))
+
         # if hit side, then teleport to center
         if self.x <= (self.radius) * -1 or self.x >= WIDTH + self.radius:
             self.vx *= -1
             self.x = WIDTH // 2
+            self.y = HEIGHT // 2
+
         # if hit paddle, then bounce
-        player1_height = 150 if earth1 else 70
-        player2_height = 150 if earth2 else 70
         if (
             (self.vy / self.vx) * (player1.x - self.x) + self.y > player1.y
-            and (self.vy / self.vx) * (player1.x - self.x) + self.y < (player1.y + player1_height)
+            and (self.vy / self.vx) * (player1.x - self.x) + self.y < (player1.y + 70)
             and self.x < player1.x + 10
             and self.x > player1.x - 10
         ):
             self.vx *= -1
+            ##pygame.mixer.music.play(pygame.mixer.Sound(bounce_sound))
         if (
             (self.vy / self.vx) * (player2.x - self.x) + self.y > player2.y
-            and (self.vy / self.vx) * (player2.x - self.x) + self.y < (player2.y + player2_height)
+            and (self.vy / self.vx) * (player2.x - self.x) + self.y < (player2.y + 70)
             and self.x < player2.x + 10
             and self.x > player2.x - 10
         ):
             self.vx *= -1
-        # if wind right, left
-        if wind1 and self.x > WIDTH // 2:
-            self.wind_angle += 5
+            ##pygame.mixer.music.play(pygame.mixer.Sound(bounce_sound))
+
+        # if wind, do wind things
+        if player1.wind and self.x > WIDTH // 2:
+            self.wind_angle += 0.01
             self.in_wind = True
-            self.ax = ...
-            self.ay = ...
-        if wind2 and self.x < WIDTH // 2:
-            self.wind_angle += 5
+            self.ax = (1 / 2) * math.cos(self.wind_angle) * self.windspeed
+            self.ay = (2) * math.sin(self.wind_angle) * self.windspeed
+        if player2.wind and self.x < WIDTH // 2:
+            self.wind_angle += 0.01
             self.in_wind = True
+
         # if not wind, set everything back to normal
-        if not wind1 and self.x > WIDTH // 2 and self.in_wind == True:
+        if not player1.wind and self.x > WIDTH // 2 and self.in_wind == True:
             self.in_wind = False
             self.vx = 5
             if self.vy >= 0:
                 self.vy = 5
             elif self.vy < 0:
                 self.vy = -5
-        if not wind2 and self.x < WIDTH // 2 and self.in_wind == True:
+        if not player2.wind and self.x < WIDTH // 2 and self.in_wind == True:
             self.in_wind = False
             self.vx = -5
             if self.vy >= 0:
                 self.vy = 5
             elif self.vy < 0:
                 self.vy = -5
+
+        #slow ball if ice
+        if player1.ice and self.x>WIDTH//2 and pygame.K_RSHIFT in keys_held:
+            self.vx *= 1/2
+            self.vy *= 1/2
+            self.slowtime=time.monotonic()+2
+            player2.ice = False
+        if player2.ice and self.x<WIDTH//2 and pygame.K_LSHIFT in keys_held:
+            self.vx *= 1/2
+            self.vy *= 1/2
+            self.slowtime=time.monotonic()+2
+            player2.ice = False
+
+        #normal speed when slowtime is over
+        if self.slowtime == time.monotonic():
+            if self.vx >= 0:
+                self.vx = 5
+            elif self.vx < 0:
+                self.vx = -5
+            if self.vy >= 0:
+                self.vy = 5
+                self.vy = 5
+            elif self.vy < 0:
+                self.vy = -5
+
         # max speed
         if self.vx > 10:
             self.vx = 10
@@ -252,11 +317,15 @@ class Ball:
             self.vx = -10
         if self.vy < -10:
             self.vy = -10
+
         # activate ability
-        if wind1 == True and pygame.K_RSHIFT in keys_held:
+        if player1.wind and pygame.K_RSHIFT in keys_held:
             self.vx *= -1
-        if wind2 == True and pygame.K_LSHIFT in keys_held:
+            player1.wind = False
+        if player2.wind and pygame.K_LSHIFT in keys_held:
             self.vx *= -1
+            player2.wind = False
+
         # final movement
         self.vx += self.ax
         self.vy += self.ay
@@ -266,8 +335,9 @@ class Ball:
         self.ay = 0
 
         # drawing the ball
-        pygame.draw.circle(screen, self.color, (self.x, self.y), self.radius)
 
+        # drawing the ball
+        pygame.draw.circle(screen, self.color, (self.x, self.y), self.radius)
 
 
 def main():
@@ -288,13 +358,15 @@ def main():
     ice2 = False
     earth1 = False
     earth2 = False
-    fastball1 = False
-    fastball2 = False
-    wind1 = False
-    wind2 = False
 
-    p1_effects = [ice1, earth1, fastball1, wind1]
-    p2_effects = [ice2, earth2, fastball2, wind2]
+    #importing sounds?????
+    ##bounce_sound=pygame.mixer.Sound("jump.wav")
+    ##bouncewall_sound=pygame.mixer.Sound("bouncewall.wav")
+    ##pygame.mixer.music.load(pygame.mixer.Sound(bounce_sound))
+    ##pygame.mixer.music.load(pygame.mixer.Sound(bouncewall_sound))
+
+    p1_effects = [player1.ice, earth1, player1.fast, player1.wind]
+    p2_effects = [player2.ice, earth2, player2.fast, player2.wind]
 
     resume_time1 = -1
     resume_time1 = -1
@@ -337,12 +409,22 @@ def main():
             earth_balls.clear()
 
         # when ability is used: after 3 seconds, give new element
-        if ice1 == False and earth1 == False and fastball1 == False and wind1 == False:
+        if (
+            player1.ice == False
+            and earth1 == False
+            and player1.fast == False
+            and player1.wind == False
+        ):
             resume_time1 = time.monotonic() + 3
             if time.monotonic() > resume_time1:
                 p1_effects[random.randint(0, 3)] = True
 
-        if ice2 == False and earth2 == False and fastball2 == False and wind2 == False:
+        if (
+            player2.ice == False
+            and earth2 == False
+            and player2.fast == False
+            and player2.wind == False
+        ):
             resume_time2 = time.monotonic() + 3
             if time.monotonic() > resume_time2:
                 p1_effects[random.randint(0, 3)] = True
@@ -360,7 +442,7 @@ def main():
         screen.blit(score_right, (WIDTH * 3 // 4, 20))
 
         ball.update(
-            keys_held, screen, player1, player2, fastball1, wind1, fastball2, wind2, earth1, earth2
+            keys_held, screen, player1, player2, earth1, earth2
         )
 
         pygame.display.flip()
