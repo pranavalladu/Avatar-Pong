@@ -15,10 +15,10 @@ WIDTH, HEIGHT = 960 , 639
 img = pygame.image.load("avatar-map.jpeg")
 img = pygame.transform.scale(img, (WIDTH, HEIGHT))
 
-earth_img = pygame.image.load("earth_img.jpg")
-water_img = pygame.image.load("water.png.webp")
-air_img = pygame.image.load("")
-fire_img = pygame.image.load()
+#earth_img = pygame.image.load("earth_img.jpg")
+#water_img = pygame.image.load("water.png.webp")
+#air_img = pygame.image.load("")
+#fire_img = pygame.image.load()
 
 #img = pygame.image.load("avatar-map.jpeg")
 
@@ -221,7 +221,7 @@ class Ball:
         self.vx = 5
         self.vy = 5
         self.color = (255, 255, 255)
-        self.radius = 10
+        self.radius = 7
         self.wind_angle = 0
         self.wind_speed = 5
         self.pausetime = -1
@@ -239,6 +239,8 @@ class Ball:
         screen: pygame.Surface,
         player1: Player1,
         player2: Player2,
+        earth1,
+        earth2,
     ) -> None:
         self.screen = screen
 
@@ -423,11 +425,11 @@ def main():
             if event.type == pygame.locals.KEYUP:
                 keys_held.remove(event.key)
 
-        player1.update(keys_held, ice1, earth1)
-        player2.update(keys_held, ice2, earth2)
+        player1.update(keys_held, earth1)
+        player2.update(keys_held, earth2)
     
         if earth1: 
-            screen.blit(earth_img, (0, 0))
+            #screen.blit(earth_img, (0, 0))
             if len(earth_balls) == 0:
                 num_balls = random.randint(5, 20)
                 for _ in range(num_balls):
