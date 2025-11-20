@@ -27,7 +27,9 @@ class Player1:
         self.ay = 0
         self.screen = screen
         self.score = 0
-        self.wind = True
+        self.wind = False
+        self.fast = False
+        self.speedtime = -1
 
     def update(self, keys_held: set[int], ice1: bool) -> None:
         self.ax, self.ay = 0, 0
@@ -44,6 +46,13 @@ class Player1:
             pygame.draw.line(
                 self.screen, "#FFFFFF", (self.x, self.y), (self.x, self.y + 70), 10
             )
+        elif self.speedtime>time.monotonic():
+            if pygame.K_UP in keys_held and self.y > 0:
+                self.vy = -11
+            if pygame.K_DOWN in keys_held and self.y < HEIGHT - 70:
+                self.vy = 11
+            self.y += self.vy
+            self.vy = 0
         else:
             if pygame.K_UP in keys_held and self.y > 0:
                 self.vy = -7
@@ -51,6 +60,11 @@ class Player1:
                 self.vy = 7
             self.y += self.vy
             self.vy = 0
+        #speedtime
+        if self.fast==True and pygame.K_RSHIFT in keys_held:
+            self.speedtime = time.monotonic() + 3
+            self.fast=False
+
 
             pygame.draw.line(
                 self.screen, "#FFFFFF", (self.x, self.y), (self.x, self.y + 70), 10
@@ -68,6 +82,7 @@ class Player2:
         self.screen = screen
         self.score = 0
         self.wind = False
+        self.fast = False
 
     def update(self, keys_held: set[int], ice2: bool) -> None:
         self.ax, self.ay = 0, 0
@@ -84,6 +99,13 @@ class Player2:
             pygame.draw.line(
                 self.screen, "#FFFFFF", (self.x, self.y), (self.x, self.y + 70), 10
             )
+        elif self.speedtime>time.monotonic():
+            if pygame.K_UP in keys_held and self.y > 0:
+                self.vy = -11
+            if pygame.K_DOWN in keys_held and self.y < HEIGHT - 70:
+                self.vy = 11
+            self.y += self.vy
+            self.vy = 0
         else:
             if pygame.K_w in keys_held and self.y > 0:
                 self.vy = -7
@@ -91,6 +113,10 @@ class Player2:
                 self.vy = 7
             self.y += self.vy
             self.vy = 0
+
+        if self.fast==True and pygame.K_RSHIFT in keys_held:
+            self.speedtime = time.monotonic() + 3
+            self.fast=False
 
             pygame.draw.line(
                 self.screen, "#FFFFFF", (self.x, self.y), (self.x, self.y + 70), 10
@@ -134,6 +160,7 @@ class Ball:
         if self.x <= (self.radius) * -1 or self.x >= WIDTH + self.radius:
             self.vx *= -1
             self.x = WIDTH // 2
+            self.y = HEIGHT // 2
 
         # if hit paddle, then bounce
         if (
@@ -258,7 +285,7 @@ def main():
         if (
             ice1 == False
             and toomanyballs1 == False
-            and fastball1 == False
+            and player1.fast == False
             and player1.wind == False
         ):
             resume_time1 = time.monotonic() + 3
@@ -268,7 +295,7 @@ def main():
         if (
             ice2 == False
             and toomanyballs2 == False
-            and fastball2 == False
+            and player2.fast == False
             and player2.wind == False
         ):
             resume_time2 = time.monotonic() + 3
