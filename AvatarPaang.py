@@ -66,9 +66,9 @@ class Player1:
             self.fast=False
 
 
-            pygame.draw.line(
-                self.screen, "#FFFFFF", (self.x, self.y), (self.x, self.y + 70), 10
-            )
+        pygame.draw.line(
+            self.screen, "#FFFFFF", (self.x, self.y), (self.x, self.y + 70), 10
+        )
 
 
 class Player2:
@@ -83,6 +83,7 @@ class Player2:
         self.score = 0
         self.wind = False
         self.fast = False
+        self.speedtime = -1
 
     def update(self, keys_held: set[int], ice2: bool) -> None:
         self.ax, self.ay = 0, 0
@@ -118,9 +119,9 @@ class Player2:
             self.speedtime = time.monotonic() + 3
             self.fast=False
 
-            pygame.draw.line(
-                self.screen, "#FFFFFF", (self.x, self.y), (self.x, self.y + 70), 10
-            )
+        pygame.draw.line(
+            self.screen, "#FFFFFF", (self.x, self.y), (self.x, self.y + 70), 10
+        )
 
 
 class Ball:
