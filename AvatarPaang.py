@@ -1,3 +1,4 @@
+#MUSIC FILE USAGE: https://www.pygame.org/docs/ref/music.html
 import sys
 
 import pygame
@@ -26,7 +27,7 @@ class Player1:
         self.ay = 0
         self.screen = screen
         self.score = 0
-        self.wind = True########
+        self.wind = True
 
     def update(self, keys_held: set[int], ice1: bool) -> None:
         self.ax, self.ay = 0, 0
@@ -123,13 +124,17 @@ class Ball:
         fastball2: bool,
     ) -> None:
         self.screen = screen
-        # If hit top, then bounce
+
+        # If hit top or bottom, then bounce
         if self.y <= self.radius or self.y >= HEIGHT - self.radius:
             self.vy *= -1
+            ##pygame.mixer.music.play(pygame.mixer.Sound(bouncewall_sound))
+
         # if hit side, then teleport to center
         if self.x <= (self.radius) * -1 or self.x >= WIDTH + self.radius:
             self.vx *= -1
             self.x = WIDTH // 2
+
         # if hit paddle, then bounce
         if (
             (self.vy / self.vx) * (player1.x - self.x) + self.y > player1.y
@@ -138,6 +143,7 @@ class Ball:
             and self.x > player1.x - 10
         ):
             self.vx *= -1
+            ##pygame.mixer.music.play(pygame.mixer.Sound(bounce_sound))
         if (
             (self.vy / self.vx) * (player2.x - self.x) + self.y > player2.y
             and (self.vy / self.vx) * (player2.x - self.x) + self.y < (player2.y + 70)
@@ -145,6 +151,8 @@ class Ball:
             and self.x > player2.x - 10
         ):
             self.vx *= -1
+            ##pygame.mixer.music.play(pygame.mixer.Sound(bounce_sound))
+
         # if wind, do wind things
         if player1.wind and self.x > WIDTH // 2:
             self.wind_angle += 0.01
@@ -154,6 +162,7 @@ class Ball:
         if player2.wind and self.x < WIDTH // 2:
             self.wind_angle += 0.01
             self.in_wind = True
+
         # if not wind, set everything back to normal
         if not player1.wind and self.x > WIDTH // 2 and self.in_wind == True:
             self.in_wind = False
@@ -169,6 +178,7 @@ class Ball:
                 self.vy = 5
             elif self.vy < 0:
                 self.vy = -5
+
         # max speed
         if self.vx > 10:
             self.vx = 10
@@ -178,6 +188,7 @@ class Ball:
             self.vx = -10
         if self.vy < -10:
             self.vy = -10
+
         # activate ability
         if player1.wind and pygame.K_RSHIFT in keys_held:
             self.vx *= -1
@@ -185,6 +196,7 @@ class Ball:
         if player2.wind and pygame.K_LSHIFT in keys_held:
             self.vx *= -1
             player2.wind = False
+
         # final movement
         self.vx += self.ax
         self.vy += self.ay
@@ -214,6 +226,12 @@ def main():
     toomanyballs2 = False
     fastball1 = False
     fastball2 = False
+
+    #importing sounds?????
+    ##bounce_sound=pygame.mixer.Sound("jump.wav")
+    ##bouncewall_sound=pygame.mixer.Sound("bouncewall.wav")
+    ##pygame.mixer.music.load(pygame.mixer.Sound(bounce_sound))
+    ##pygame.mixer.music.load(pygame.mixer.Sound(bouncewall_sound))
 
     p1_effects = [ice1, toomanyballs1, fastball1, player1.wind]
     p2_effects = [ice2, toomanyballs2, fastball2, player2.wind]
@@ -273,7 +291,7 @@ def main():
         # coin.update(player1)
 
         ball.update(
-            keys_held, screen, player1, player2, fastball1, fastball2
+            keys_held, screen, player1, player2, fastball1, fastball2, 
         )
 
         pygame.display.flip()
