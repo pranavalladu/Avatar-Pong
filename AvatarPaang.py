@@ -105,6 +105,8 @@ class Player1:
         if self.wind: self.color=(255,150,150)
         if self.fast: self.color=(255,50,50)
         if self.earth: self.color = (50,255,50)
+        if not self.ice and not self.wind and not self.fast and not self.earth:
+            self.color = (255,255,255)
 
 
 
@@ -186,6 +188,8 @@ class Player2:
         if self.ice: self.color=(50,50,255)
         if self.wind: self.color=(255,150,150)
         if self.fast: self.color=(255,50,50)
+        if not self.ice and not self.wind and not self.fast and not self.earth:
+            self.color = (255,255,255)
 
         pygame.draw.line(self.screen, self.color, (int(self.x), int(self.y)), (int(self.x), int(self.y + self.length)), 10)
         if self.earth: self.color = (50,255,50)
@@ -393,11 +397,7 @@ def main():
 
 
 
-    #importing sounds?????
     bounce_sound=pygame.mixer.Sound("jump.wav")
-    #bouncewall_sound=pygame.mixer.Sound("bouncewall.wav")
-    ##pygame.mixer.music.load(pygame.mixer.Sound(bounce_sound))
-    ##pygame.mixer.music.load(pygame.mixer.Sound(bouncewall_sound))
     bounce_sound.play()
     p1_effects = ["ice", "earth", "fast", "wind"]
     p2_effects = ["ice", "earth", "fast", "wind"]
@@ -420,6 +420,7 @@ def main():
 
         player1.update(keys_held)
         player2.update(keys_held)
+
     
         #sozin's comet
         #if sozinscomet<time.monotonic():
