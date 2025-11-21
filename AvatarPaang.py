@@ -386,12 +386,24 @@ class Ball:
 
         if player1.fast and self.x > WIDTH // 2:
             self.in_speed = True
-            self.vx *= 1.2
-            self.vy *= 1.2
+            if self.vx >= 0:
+                self.vx = 7
+            elif self.vx < 0:
+                self.vx = -7
+            if self.vy >= 0:
+                self.vy = 7
+            elif self.vy < 0:
+                self.vy = -7
         if player2.fast and self.x < WIDTH // 2:
             self.in_speed = True
-            self.vx *= 1.2
-            self.vy *= 1.2
+            if self.vx >= 0:
+                self.vx = 7
+            elif self.vx < 0:
+                self.vx = -7
+            if self.vy >= 0:
+                self.vy = 7
+            elif self.vy < 0:
+                self.vy = -7
 
         # if not wind, set everything back to normal
         if not player1.fast and self.x > WIDTH // 2 and self.in_speed == True:
