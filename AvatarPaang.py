@@ -46,7 +46,7 @@ class Player1:
         self.ice = False
         self.color=(255,255,255)
         self.length = 70
-        self.earth = False
+        self.earth = True
         self.bigtime = -1
 
     def update(self, keys_held: set[int]) -> None:
