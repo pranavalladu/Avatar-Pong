@@ -595,6 +595,8 @@ def main():
             screen.blit(score_right, (WIDTH * 3 // 4, 20))
             if player1.score>10 or player2.score>10:
                 startscreen = True
+                player1.score = 0
+                player2.score = 0
 
             ball.update(
                 keys_held,
