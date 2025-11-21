@@ -445,6 +445,11 @@ class Ball:
             self.vx *= -1
             player2.wind = False
 
+        if player1.earth or player2.earth:
+            self.color = (50,200,50)
+        if not player1.earth and not player2.earth:
+            self.color = (255,255,255)
+
         # final movement
         self.vx += self.ax
         self.vy += self.ay
