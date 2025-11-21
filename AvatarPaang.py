@@ -412,6 +412,8 @@ def main():
     resume_time1 = -1
     resume_time1 = -1
 
+    #sozinscomet = random.randint(30,120)
+
     while True:
         screen.blit(img, (0, 0))
 
@@ -428,6 +430,10 @@ def main():
         player1.update(keys_held, earth1)
         player2.update(keys_held, earth2)
     
+        #sozin's comet
+        #if sozinscomet<time.monotonic():
+        #    pygame.quit
+
         if earth1: 
             #screen.blit(earth_img, (0, 0))
             if len(earth_balls) == 0:
