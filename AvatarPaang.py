@@ -46,7 +46,7 @@ class Player1:
         self.ice = False
         self.color=(255,255,255)
         self.length = 70
-        self.earth = True
+        self.earth = False
         self.bigtime = -1
 
     def update(self, keys_held: set[int]) -> None:
@@ -63,9 +63,7 @@ class Player1:
             self.vy += self.ay
             self.y += self.vy
             self.vy *= 0.97
-            pygame.draw.line(
-                self.screen, "#FFFFFF", (self.x, self.y), (self.x, self.y + self.length), 10
-            )
+            pygame.draw.line(self.screen, self.color, (int(self.x), int(self.y)), (int(self.x), int(self.y + self.length)), 10)
         
         elif self.speedtime>time.monotonic():
             if pygame.K_UP in keys_held and self.y > 0:
@@ -84,8 +82,13 @@ class Player1:
             self.vy = 0
 
         #Earth effect
-        if self.earth == True and pygame.K_RSHIFT in keys_held:
-            self.bigtime = time.monotonic() + 3
+        if self.earth and pygame.K_RSHIFT in keys_held:
+            if self.bigtime < time.monotonic():
+                self.bigtime = time.monotonic() + 3
+        if self.bigtime != -1 and time.monotonic() < self.bigtime:
+            self.length = 150
+        else:
+            self.length = 70
 
         if self.bigtime>time.monotonic():
             self.length = 150
@@ -105,9 +108,7 @@ class Player1:
 
 
 
-        pygame.draw.line(
-            self.screen, self.color, (self.x, self.y), (self.x, self.y + 70), 10
-        )
+        pygame.draw.line(self.screen, self.color, (int(self.x), int(self.y)), (int(self.x), int(self.y + self.length)), 10)
 
 
 class Player2:
@@ -143,9 +144,7 @@ class Player2:
             self.vy += self.ay
             self.y += self.vy
             self.vy *= 0.97
-            pygame.draw.line(
-                self.screen, "#FFFFFF", (self.x, self.y), (self.x, self.y + self.length), 10
-            )
+            pygame.draw.line(self.screen, self.color, (int(self.x), int(self.y)), (int(self.x), int(self.y + self.length)), 10)
         elif self.speedtime>time.monotonic():
             if pygame.K_w in keys_held and self.y > 0:
                 self.vy = -11
@@ -188,9 +187,7 @@ class Player2:
         if self.wind: self.color=(255,150,150)
         if self.fast: self.color=(255,50,50)
 
-        pygame.draw.line(
-            self.screen, self.color, (self.x, self.y), (self.x, self.y + self.length), 10
-        )
+        pygame.draw.line(self.screen, self.color, (int(self.x), int(self.y)), (int(self.x), int(self.y + self.length)), 10)
         if self.earth: self.color = (50,255,50)
 
 class Earth_ball:
@@ -208,7 +205,7 @@ class Earth_ball:
         self.x += self.vx
         self.y += self.vy
 
-        pygame.draw.circle(screen, self.color, (self.x, self.y), self.radius)
+        pygame.draw.circle(screen, self.color, (int(self.x), int(self.y)), self.radius)
 
         if self.x < 0 or self.x > WIDTH:
             return False
@@ -312,15 +309,15 @@ class Ball:
             player2.ice = False
 
         #normal speed when slowtime is over
-        if self.slowtime == time.monotonic():
+        if self.slowtime != -1 and time.monotonic() >= self.slowtime:
+            self.slowtime = -1
             if self.vx >= 0:
                 self.vx = 5
-            elif self.vx < 0:
+            else:
                 self.vx = -5
             if self.vy >= 0:
                 self.vy = 5
-                self.vy = 5
-            elif self.vy < 0:
+            else:
                 self.vy = -5
 
         if player1.fast and self.x > WIDTH // 2:
@@ -378,7 +375,7 @@ class Ball:
         # drawing the ball
 
         # drawing the ball
-        pygame.draw.circle(screen, self.color, (self.x, self.y), self.radius)
+        pygame.draw.circle(screen, self.color, (int(self.x), int(self.y)), self.radius)
 
 
 def main():
@@ -402,13 +399,11 @@ def main():
     ##pygame.mixer.music.load(pygame.mixer.Sound(bounce_sound))
     ##pygame.mixer.music.load(pygame.mixer.Sound(bouncewall_sound))
     bounce_sound.play()
-    p1_effects = [player1.ice, player1.earth, player1.fast, player1.wind]
-    p2_effects = [player2.ice, player2.earth, player2.fast, player2.wind]
+    p1_effects = ["ice", "earth", "fast", "wind"]
+    p2_effects = ["ice", "earth", "fast", "wind"]
 
     resume_time1 = -1
-    resume_time1 = -1
-
-    #sozinscomet = random.randint(30,120)
+    resume_time2 = -1
 
     while True:
         screen.blit(img, (0, 0))
@@ -452,25 +447,37 @@ def main():
             earth_balls.clear()
 
         # when ability is used: after 3 seconds, give new element
-        if (
-            player1.ice == False
-            and player1.earth == False
-            and player1.fast == False
-            and player1.wind == False
-        ):
+        if (not player1.ice and not player1.earth and not player1.fast and not player1.wind and resume_time1 == -1):
             resume_time1 = time.monotonic() + 5
-        if time.monotonic() > resume_time1:
-            p1_effects[random.randint(0, 3)] = True
+        if resume_time1 != -1 and time.monotonic() >= resume_time1:
+            player1.ice = player1.earth = player1.fast = player1.wind = False
+            choice = random.choice(["ice", "earth", "fast", "wind"])
+            if choice == "ice":
+                player1.ice = True
+            elif choice == "earth":
+                player1.earth = True
+            elif choice == "fast":
+                player1.fast = True
+            elif choice == "wind":
+                player1.wind = True
+            resume_time1 = -1
 
-        if (
-            player2.ice == False
-            and player2.earth == False
-            and player2.fast == False
-            and player2.wind == False
-        ):
+        if (not player2.ice and not player2.earth and not player2.fast and not player2.wind and resume_time2 == -1):
             resume_time2 = time.monotonic() + 5
-        if time.monotonic() > resume_time2:
-            p2_effects[random.randint(0, 3)] = True
+        if resume_time2 != -1 and time.monotonic() >= resume_time2:
+            player2.ice = player2.earth = player2.fast = player2.wind = False
+            choice = random.choice(["ice", "earth", "fast", "wind"])
+            if choice == "ice":
+                player2.ice = True
+            elif choice == "earth":
+                player2.earth = True
+            elif choice == "fast":
+                player2.fast = True
+            elif choice == "wind":
+                player2.wind = True
+            resume_time2 = -1
+
+
 
         # Counting score
         if ball.x < ball.radius * -1:
