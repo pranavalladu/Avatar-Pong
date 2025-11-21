@@ -45,55 +45,41 @@ class Player1:
         self.speedtime = -1
         self.ice = False
         self.color=(255,255,255)
+        self.length = 70
+        self.earth = False
+        self.bigtime = -1
 
-    def update(self, keys_held: set[int], earth1: bool) -> None:
+    def update(self, keys_held: set[int]) -> None:
         self.ax, self.ay = 0, 0
         if self.ice:
             if pygame.K_UP in keys_held and self.y > 0:
                 self.ay -= 0.3
-            if pygame.K_DOWN in keys_held and self.y < HEIGHT - 70:
+            if pygame.K_DOWN in keys_held and self.y < HEIGHT - self.length:
                 self.ay += 0.3
-            if self.y <= 0 or self.y >= HEIGHT - 70:
+            if self.y <= 0 or self.y >= HEIGHT - self.length:
                 self.vy = 0
-            if self.y <= 0 or self.y >= HEIGHT - 70:
+            if self.y <= 0 or self.y >= HEIGHT - self.length:
                 self.vy = 0
             self.vy += self.ay
             self.y += self.vy
             self.vy *= 0.97
             pygame.draw.line(
-                self.screen, "#FFFFFF", (self.x, self.y), (self.x, self.y + 70), 10
+                self.screen, "#FFFFFF", (self.x, self.y), (self.x, self.y + self.length), 10
             )
-        if earth1:
-            paddle_height = 150
-            if self.y < 0:
-                self.y = 0
-            elif self.y > HEIGHT - paddle_height:
-                self.y = HEIGHT - paddle_height
-            pygame.draw.line(
-                self.screen,
-                "#00FF00",
-                (self.x, self.y),
-                (self.x, self.y + paddle_height),
-                10,
-            )
-            self.screen.blit(earth_img, (WIDTH/2, 100))
-            if pygame.K_UP in keys_held and self.y > 0:
-                self.vy = -7
-            if pygame.K_DOWN in keys_held and self.y < HEIGHT - 70:
-                self.vy = 7
-            self.y += self.vy
-            self.vy = 0
-        elif self.speedtime>time.monotonic():
-            if pygame.K_UP in keys_held and self.y > 0:
-                self.vy = -11
-            if pygame.K_DOWN in keys_held and self.y < HEIGHT - 70:
-                self.vy = 11
-            self.y += self.vy
-            self.vy = 0
+
+        if self.earth == True and pygame.K_RSHIFT in keys_held:
+            self.bigtime = time.monotonic() + 3
+
+        #Earth effect
+        if self.bigtime>time.monotonic():
+            self.length = 150
+        if self.bigtime<time.monotonic():
+            self.length = 70
+
         else:
             if pygame.K_UP in keys_held and self.y > 0:
                 self.vy = -7
-            if pygame.K_DOWN in keys_held and self.y < HEIGHT - 70:
+            if pygame.K_DOWN in keys_held and self.y < HEIGHT - self.length:
                 self.vy = 7
             self.y += self.vy
             self.vy = 0
@@ -106,6 +92,8 @@ class Player1:
         if self.ice: self.color=(50,50,255)
         if self.wind: self.color=(255,150,150)
         if self.fast: self.color=(255,50,50)
+        if self.earth: self.color = (50,255,50)
+
 
 
         pygame.draw.line(
@@ -128,54 +116,48 @@ class Player2:
         self.speedtime = -1
         self.ice = False
         self.color=(255,255,255)
+        self.length = 70
+        self.earth = False
+        self.bigtime = -1
 
-    def update(self, keys_held: set[int], earth2: bool) -> None:
+    def update(self, keys_held: set[int],) -> None:
         self.ax, self.ay = 0, 0
         if self.ice:
             if pygame.K_w in keys_held and self.y > 0:
                 self.ay -= 0.3
-            if pygame.K_s in keys_held and self.y < HEIGHT - 70:
+            if pygame.K_s in keys_held and self.y < HEIGHT - self.length:
                 self.ay += 0.3
-            if self.y < 0 or self.y > HEIGHT - 70:
+            if self.y < 0 or self.y > HEIGHT - self.length:
                 self.vy = 0
-            if self.y < 0 or self.y > HEIGHT - 70:
+            if self.y < 0 or self.y > HEIGHT - self.length:
                 self.vy = 0
             self.vy += self.ay
             self.y += self.vy
             self.vy *= 0.97
             pygame.draw.line(
-                self.screen, "#FFFFFF", (self.x, self.y), (self.x, self.y + 70), 10
+                self.screen, "#FFFFFF", (self.x, self.y), (self.x, self.y + self.length), 10
             )
         elif self.speedtime>time.monotonic():
             if pygame.K_UP in keys_held and self.y > 0:
                 self.vy = -11
-            if pygame.K_DOWN in keys_held and self.y < HEIGHT - 70:
+            if pygame.K_DOWN in keys_held and self.y < HEIGHT - self.length:
                 self.vy = 11
             self.y += self.vy
             self.vy = 0
-        if earth2:
-            paddle_height = 150
-            if self.y < 0:
-                self.y = 0
-            elif self.y > HEIGHT - paddle_height:
-                self.y = HEIGHT - paddle_height
-            pygame.draw.line(
-                self.screen,
-                "#00FF00",
-                (self.x, self.y),
-                (self.x, self.y + paddle_height),
-                10,
-            )
-            if pygame.K_w in keys_held and self.y > 0:
-                self.vy = -7
-            if pygame.K_s in keys_held and self.y < HEIGHT - 70:
-                self.vy = 7
-            self.y += self.vy
-            self.vy = 0
+
+        if self.earth == True and pygame.K_LSHIFT in keys_held:
+            self.bigtime = time.monotonic() + 3
+
+         #Earth effect
+        if self.bigtime>time.monotonic():
+            self.length = 150
+        if self.bigtime<time.monotonic():
+            self.length = 70
+
         else:
             if pygame.K_w in keys_held and self.y > 0:
                 self.vy = -7
-            if pygame.K_s in keys_held and self.y < HEIGHT - 70:
+            if pygame.K_s in keys_held and self.y < HEIGHT - self.length:
                 self.vy = 7
             self.y += self.vy
             self.vy = 0
@@ -190,8 +172,9 @@ class Player2:
         if self.fast: self.color=(255,50,50)
 
         pygame.draw.line(
-            self.screen, self.color, (self.x, self.y), (self.x, self.y + 70), 10
+            self.screen, self.color, (self.x, self.y), (self.x, self.y + self.length), 10
         )
+        if self.earth: self.color = (50,255,50)
 
 class Earth_ball:
     def __init__(self, x: float, y: float):
@@ -241,8 +224,6 @@ class Ball:
         screen: pygame.Surface,
         player1: Player1,
         player2: Player2,
-        earth1,
-        earth2,
     ) -> None:
         self.screen = screen
 
@@ -260,7 +241,7 @@ class Ball:
         # if hit paddle, then bounce
         if (
             (self.vy / self.vx) * (player1.x - self.x) + self.y > player1.y
-            and (self.vy / self.vx) * (player1.x - self.x) + self.y < (player1.y + 70)
+            and (self.vy / self.vx) * (player1.x - self.x) + self.y < (player1.y + player1.length)
             and self.x < player1.x + 10
             and self.x > player1.x - 10
         ):
@@ -268,7 +249,7 @@ class Ball:
             ##pygame.mixer.music.play(pygame.mixer.Sound(bounce_sound))
         if (
             (self.vy / self.vx) * (player2.x - self.x) + self.y > player2.y
-            and (self.vy / self.vx) * (player2.x - self.x) + self.y < (player2.y + 70)
+            and (self.vy / self.vx) * (player2.x - self.x) + self.y < (player2.y + player2.length)
             and self.x < player2.x + 10
             and self.x > player2.x - 10
         ):
@@ -397,10 +378,6 @@ def main():
     earth_balls = []
 
 
-    ice1 = False
-    ice2 = False
-    earth1 = True
-    earth2 = False
 
     #importing sounds?????
     bounce_sound=pygame.mixer.Sound("jump.wav")
@@ -408,11 +385,13 @@ def main():
     ##pygame.mixer.music.load(pygame.mixer.Sound(bounce_sound))
     ##pygame.mixer.music.load(pygame.mixer.Sound(bouncewall_sound))
     bounce_sound.play()
-    p1_effects = [player1.ice, earth1, player1.fast, player1.wind]
-    p2_effects = [player2.ice, earth2, player2.fast, player2.wind]
+    p1_effects = [player1.ice, player1.earth, player1.fast, player1.wind]
+    p2_effects = [player2.ice, player2.earth, player2.fast, player2.wind]
 
     resume_time1 = -1
     resume_time1 = -1
+
+    #sozinscomet = random.randint(30,120)
 
     while True:
         screen.blit(img, (0, 0))
@@ -427,10 +406,14 @@ def main():
             if event.type == pygame.locals.KEYUP:
                 keys_held.remove(event.key)
 
-        player1.update(keys_held, earth1)
-        player2.update(keys_held, earth2)
+        player1.update(keys_held)
+        player2.update(keys_held)
     
-        if earth1: 
+        #sozin's comet
+        #if sozinscomet<time.monotonic():
+        #    pygame.quit
+
+        if player1.earth: 
             #screen.blit(earth_img, (0, 0))
             if len(earth_balls) == 0:
                 num_balls = random.randint(5, 20)
@@ -438,7 +421,7 @@ def main():
                     x = random.randint(0, int(WIDTH // 2 - 50))
                     y = random.randint(0, int(HEIGHT - 10))
                     earth_balls.append(Earth_ball(x, y))
-        if earth2:
+        if player2.earth:
             if len(earth_balls) == 0:
                 num_balls = random.randint(5, 20)
                 for _ in range(num_balls):
@@ -448,13 +431,13 @@ def main():
 
         earth_balls = [b for b in earth_balls if b.update(screen)]
 
-        if not earth1 and not earth2:
+        if not player1.earth and not player2.earth:
             earth_balls.clear()
 
         # when ability is used: after 3 seconds, give new element
         if (
             player1.ice == False
-            and earth1 == False
+            and player1.earth == False
             and player1.fast == False
             and player1.wind == False
         ):
@@ -464,7 +447,7 @@ def main():
 
         if (
             player2.ice == False
-            and earth2 == False
+            and player2.earth == False
             and player2.fast == False
             and player2.wind == False
         ):
@@ -485,7 +468,7 @@ def main():
         screen.blit(score_right, (WIDTH * 3 // 4, 20))
 
         ball.update(
-            keys_held, screen, player1, player2, earth1, earth2
+            keys_held, screen, player1, player2,
         )
 
         pygame.display.flip()
