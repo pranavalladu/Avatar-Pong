@@ -272,8 +272,7 @@ class Ball:
         self.ax = 0
         self.ay = 0
         self.windspeed = 0.1
-        self.slowtime1 = -1
-        self.slowtime2 = -1
+        self.slowtime = -1
         self.in_speed = False
         self.justslow = False
 
@@ -283,12 +282,15 @@ class Ball:
         screen: pygame.Surface,
         player1: Player1,
         player2: Player2,
+        bounce_sound,
+        bouncewall_sound,
     ) -> None:
         self.screen = screen
 
         # If hit top or bottom, then bounce
         if self.y <= self.radius or self.y >= HEIGHT - self.radius:
             self.vy *= -1
+            bouncewall_sound.play()
 
         # if hit side, then teleport to center
         if self.x <= (self.radius) * -1 or self.x >= WIDTH + self.radius:
@@ -305,6 +307,7 @@ class Ball:
             and self.x > player1.x - self.radius
         ):
             self.vx *= -1
+            bounce_sound.play()
         if (
             (self.vy / self.vx) * (player2.x - self.x) + self.y > player2.y
             and (self.vy / self.vx) * (player2.x - self.x) + self.y
@@ -313,6 +316,7 @@ class Ball:
             and self.x > player2.x - self.radius
         ):
             self.vx *= -1
+            bounce_sound.play()
 
         # if wind, do wind things
         if player1.wind and self.x > WIDTH // 2:
@@ -349,25 +353,14 @@ class Ball:
                 self.vy = -5
 
         # slow ball if ice
-        if player1.ice and self.x > WIDTH // 2 and pygame.K_RSHIFT in keys_held:
-            self.slowtime1 = time.monotonic() + 3
+        if player1.ice and  pygame.K_RSHIFT in keys_held:
+            self.slowtime = time.monotonic() + 3
             player1.ice = False
-        if player2.ice and self.x < WIDTH // 2 and pygame.K_LSHIFT in keys_held:
-            self.slowtime2 = time.monotonic() + 3
+        if player2.ice and pygame.K_LSHIFT in keys_held:
+            self.slowtime = time.monotonic() + 3
             player2.ice = False
 
-        if self.slowtime1 > time.monotonic() and self.justslow == False:
-            self.justslow = True
-            if self.vx >= 0:
-                self.vx = 3
-            elif self.vx < 0:
-                self.vx = -3
-            if self.vy >= 0:
-                self.vy = 3
-            elif self.vy < 0:
-                self.vy = -3
-
-        if self.slowtime2 > time.monotonic() and self.justslow == False:
+        if self.slowtime > time.monotonic() and self.justslow == False:
             self.justslow = True
             if self.vx >= 0:
                 self.vx = 3
@@ -379,7 +372,7 @@ class Ball:
                 self.vy = -3
 
         # normal speed when slowtime is over
-        if time.monotonic() > self.slowtime1 and self.justslow == True:
+        if time.monotonic() > self.slowtime and self.justslow == True:
             self.justslow = False
             if self.vx >= 0:
                 self.vx = 5
@@ -390,15 +383,6 @@ class Ball:
             else:
                 self.vy = -5
 
-        if time.monotonic() > self.slowtime2 and self.justslow == True:
-            if self.vx >= 0:
-                self.vx = 5
-            else:
-                self.vx = -5
-            if self.vy >= 0:
-                self.vy = 5
-            else:
-                self.vy = -5
 
         if player1.fast and self.x > WIDTH // 2:
             self.in_speed = True
@@ -477,7 +461,7 @@ def main():
     earth_balls = []
 
     bounce_sound = pygame.mixer.Sound("jump.wav")
-    bounce_sound.play()
+    bouncewall_sound = pygame.mixer.Sound("bouncewall.wav")
     p1_effects = ["ice", "earth", "fast", "wind"]
     p2_effects = ["ice", "earth", "fast", "wind"]
 
@@ -489,8 +473,6 @@ def main():
     while True:
 
 
-        screen.blit(img, (0, 0))
-
         for event in pygame.event.get():
             if event.type == pygame.locals.QUIT:
                 pygame.quit()
@@ -501,98 +483,113 @@ def main():
             if event.type == pygame.locals.KEYUP:
                 keys_held.remove(event.key)
 
-        player1.update(keys_held)
-        player2.update(keys_held)
 
-        # sozin's comet
-        # if sozinscomet<time.monotonic():
-        #    pygame.quit
+        if startscreen == True:
+            screen.fill("#000000")
+            draw_start_screen(screen)
+            if pygame.K_SPACE in keys_held:
+                startscreen = False
+        else:
 
-        if player1.earth:
-            # screen.blit(earth_img, (0, 0))
-            if len(earth_balls) == 0:
-                num_balls = random.randint(5, 20)
-                for _ in range(num_balls):
-                    x = random.randint(0, int(WIDTH // 2 - 50))
-                    y = random.randint(0, int(HEIGHT - 10))
-                    earth_balls.append(Earth_ball(x, y))
-        if player2.earth:
-            if len(earth_balls) == 0:
-                num_balls = random.randint(5, 20)
-                for _ in range(num_balls):
-                    x = random.randint(int(WIDTH // 2 + 50), int(WIDTH - 10))
-                    y = random.randint(0, int(HEIGHT - 10))
-                    earth_balls.append(Earth_ball(x, y))
+            screen.blit(img, (0, 0))
 
-        earth_balls = [b for b in earth_balls if b.update(screen)]
 
-        if not player1.earth and not player2.earth:
-            earth_balls.clear()
+            player1.update(keys_held)
+            player2.update(keys_held)
 
-        # when ability is used: after 3 seconds, give new element
-        if (
-            not player1.ice
-            and not player1.earth
-            and not player1.fast
-            and not player1.wind
-            and resume_time1 == -1
-        ):
-            resume_time1 = time.monotonic() + 5
-        if resume_time1 != -1 and time.monotonic() >= resume_time1:
-            player1.ice = player1.earth = player1.fast = player1.wind = False
-            choice = random.choice(["ice", "earth", "fast", "wind"])
-            if choice == "ice":
-                player1.ice = True
-            elif choice == "earth":
-                player1.earth = True
-            elif choice == "fast":
-                player1.fast = True
-            elif choice == "wind":
-                player1.wind = True
-            resume_time1 = -1
+            # sozin's comet
+            # if sozinscomet<time.monotonic():
+            #    pygame.quit
 
-        if (
-            not player2.ice
-            and not player2.earth
-            and not player2.fast
-            and not player2.wind
-            and resume_time2 == -1
-        ):
-            resume_time2 = time.monotonic() + 5
-        if resume_time2 != -1 and time.monotonic() >= resume_time2:
-            player2.ice = player2.earth = player2.fast = player2.wind = False
-            choice = random.choice(["ice", "earth", "fast", "wind"])
-            if choice == "ice":
-                player2.ice = True
-            elif choice == "earth":
-                player2.earth = True
-            elif choice == "fast":
-                player2.fast = True
-            elif choice == "wind":
-                player2.wind = True
-            resume_time2 = -1
+            if player1.earth:
+                # screen.blit(earth_img, (0, 0))
+                if len(earth_balls) == 0:
+                    num_balls = random.randint(5, 20)
+                    for _ in range(num_balls):
+                        x = random.randint(0, int(WIDTH // 2 - 50))
+                        y = random.randint(0, int(HEIGHT - 10))
+                        earth_balls.append(Earth_ball(x, y))
+            if player2.earth:
+                if len(earth_balls) == 0:
+                    num_balls = random.randint(5, 20)
+                    for _ in range(num_balls):
+                        x = random.randint(int(WIDTH // 2 + 50), int(WIDTH - 10))
+                        y = random.randint(0, int(HEIGHT - 10))
+                        earth_balls.append(Earth_ball(x, y))
 
-        # Counting score
-        if ball.x < ball.radius * -1:
-            player2.score += 1
-        elif ball.x > WIDTH + ball.radius:
-            player1.score += 1
-        font = pygame.font.SysFont("Arial", 20)
-        text_color = (255, 255, 255)
-        score_left = font.render(str(player1.score), True, text_color)
-        score_right = font.render(str(player2.score), True, text_color)
-        screen.blit(score_left, (WIDTH // 4, 20))
-        screen.blit(score_right, (WIDTH * 3 // 4, 20))
+            earth_balls = [b for b in earth_balls if b.update(screen)]
 
-        ball.update(
-            keys_held,
-            screen,
-            player1,
-            player2,
-        )
+            if not player1.earth and not player2.earth:
+                earth_balls.clear()
 
-        pygame.display.flip()
-        fps_clock.tick(fps)
+            # when ability is used: after 3 seconds, give new element
+            if (
+                not player1.ice
+                and not player1.earth
+                and not player1.fast
+                and not player1.wind
+                and resume_time1 == -1
+            ):
+                resume_time1 = time.monotonic() + 5
+            if resume_time1 != -1 and time.monotonic() >= resume_time1:
+                player1.ice = player1.earth = player1.fast = player1.wind = False
+                choice = random.choice(["ice", "earth", "fast", "wind"])
+                if choice == "ice":
+                    player1.ice = True
+                elif choice == "earth":
+                    player1.earth = True
+                elif choice == "fast":
+                    player1.fast = True
+                elif choice == "wind":
+                    player1.wind = True
+                resume_time1 = -1
+
+            if (
+                not player2.ice
+                and not player2.earth
+                and not player2.fast
+                and not player2.wind
+                and resume_time2 == -1
+            ):
+                resume_time2 = time.monotonic() + 5
+            if resume_time2 != -1 and time.monotonic() >= resume_time2:
+                player2.ice = player2.earth = player2.fast = player2.wind = False
+                choice = random.choice(["ice", "earth", "fast", "wind"])
+                if choice == "ice":
+                    player2.ice = True
+                elif choice == "earth":
+                    player2.earth = True
+                elif choice == "fast":
+                    player2.fast = True
+                elif choice == "wind":
+                    player2.wind = True
+                resume_time2 = -1
+
+            # Counting score
+            if ball.x < ball.radius * -1:
+                player2.score += 1
+            elif ball.x > WIDTH + ball.radius:
+                player1.score += 1
+            font = pygame.font.SysFont("Arial", 20)
+            text_color = (255, 255, 255)
+            score_left = font.render(str(player1.score), True, text_color)
+            score_right = font.render(str(player2.score), True, text_color)
+            screen.blit(score_left, (WIDTH // 4, 20))
+            screen.blit(score_right, (WIDTH * 3 // 4, 20))
+            if player1.score>10 or player2.score>10:
+                startscreen = True
+
+            ball.update(
+                keys_held,
+                screen,
+                player1,
+                player2,
+                bounce_sound,
+                bouncewall_sound
+            )
+
+            pygame.display.flip()
+            fps_clock.tick(fps)
 
 
 if __name__ == "__main__":
