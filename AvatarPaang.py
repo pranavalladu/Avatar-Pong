@@ -12,10 +12,11 @@ import time
 
 WIDTH, HEIGHT = 960 , 639
 
-img = pygame.image.load("avatar-map.jpeg")
+img = pygame.image.load("avatar_map.webp")
 img = pygame.transform.scale(img, (WIDTH, HEIGHT))
 
-earth_img = pygame.image.load("earth_img.jpg")
+earth_img = pygame.image.load("earth_img.png")
+earth_img = pygame.transform.scale(earth_img, (WIDTH/3, (2*HEIGHT)/3))
 water_img = pygame.image.load("water.png.webp")
 air_img = pygame.image.load("air_img.webp")
 fire_img = pygame.image.load("fire_img.jpg")
@@ -75,6 +76,7 @@ class Player1:
                 (self.x, self.y + paddle_height),
                 10,
             )
+            self.screen.blit(earth_img, (WIDTH/2, 100))
             if pygame.K_UP in keys_held and self.y > 0:
                 self.vy = -7
             if pygame.K_DOWN in keys_held and self.y < HEIGHT - 70:
@@ -221,7 +223,7 @@ class Ball:
         self.vx = 5
         self.vy = 5
         self.color = (255, 255, 255)
-        self.radius = 10
+        self.radius = 7
         self.wind_angle = 0
         self.wind_speed = 5
         self.pausetime = -1
@@ -239,6 +241,8 @@ class Ball:
         screen: pygame.Surface,
         player1: Player1,
         player2: Player2,
+        earth1,
+        earth2,
     ) -> None:
         self.screen = screen
 
@@ -395,15 +399,15 @@ def main():
 
     ice1 = False
     ice2 = False
-    earth1 = False
+    earth1 = True
     earth2 = False
 
     #importing sounds?????
-    ##bounce_sound=pygame.mixer.Sound("jump.wav")
-    ##bouncewall_sound=pygame.mixer.Sound("bouncewall.wav")
+    bounce_sound=pygame.mixer.Sound("jump.wav")
+    #bouncewall_sound=pygame.mixer.Sound("bouncewall.wav")
     ##pygame.mixer.music.load(pygame.mixer.Sound(bounce_sound))
     ##pygame.mixer.music.load(pygame.mixer.Sound(bouncewall_sound))
-
+    bounce_sound.play()
     p1_effects = [player1.ice, earth1, player1.fast, player1.wind]
     p2_effects = [player2.ice, earth2, player2.fast, player2.wind]
 
@@ -423,11 +427,11 @@ def main():
             if event.type == pygame.locals.KEYUP:
                 keys_held.remove(event.key)
 
-        player1.update(keys_held, ice1, earth1)
-        player2.update(keys_held, ice2, earth2)
+        player1.update(keys_held, earth1)
+        player2.update(keys_held, earth2)
     
         if earth1: 
-            screen.blit(earth_img, (0, 0))
+            #screen.blit(earth_img, (0, 0))
             if len(earth_balls) == 0:
                 num_balls = random.randint(5, 20)
                 for _ in range(num_balls):
