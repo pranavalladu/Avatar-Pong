@@ -35,7 +35,7 @@ class Player1:
 
     def __init__(self, screen: pygame.Surface):
         self.x = screen.get_width() * (9 / 10)
-        self.y = screen.get_height() * (9 / 10)
+        self.y = HEIGHT //2
         self.vy = 0
         self.ay = 0
         self.screen = screen
@@ -66,6 +66,22 @@ class Player1:
             pygame.draw.line(
                 self.screen, "#FFFFFF", (self.x, self.y), (self.x, self.y + self.length), 10
             )
+        
+        elif self.speedtime>time.monotonic():
+            if pygame.K_UP in keys_held and self.y > 0:
+                self.vy = -11
+            if pygame.K_DOWN in keys_held and self.y < HEIGHT - self.length:
+                self.vy = 11
+            self.y += self.vy
+            self.vy = 0
+        
+        else:
+            if pygame.K_UP in keys_held and self.y > 0:
+                self.vy = -7
+            if pygame.K_DOWN in keys_held and self.y < HEIGHT - self.length:
+                self.vy = 7
+            self.y += self.vy
+            self.vy = 0
 
         if self.earth == True and pygame.K_RSHIFT in keys_held:
             self.bigtime = time.monotonic() + 3
@@ -76,13 +92,6 @@ class Player1:
         if self.bigtime<time.monotonic():
             self.length = 70
 
-        else:
-            if pygame.K_UP in keys_held and self.y > 0:
-                self.vy = -7
-            if pygame.K_DOWN in keys_held and self.y < HEIGHT - self.length:
-                self.vy = 7
-            self.y += self.vy
-            self.vy = 0
         #speedtime
         if self.fast==True and pygame.K_RSHIFT in keys_held:
             self.speedtime = time.monotonic() + 3
@@ -105,7 +114,7 @@ class Player2:
 
     def __init__(self, screen: pygame.Surface):
         self.x = screen.get_width() // 10
-        self.y = screen.get_height() // 10
+        self.y = HEIGHT //2 
         self.vy = 0
         self.ay = 0
         self.radius = 30
@@ -138,10 +147,18 @@ class Player2:
                 self.screen, "#FFFFFF", (self.x, self.y), (self.x, self.y + self.length), 10
             )
         elif self.speedtime>time.monotonic():
-            if pygame.K_UP in keys_held and self.y > 0:
+            if pygame.K_w in keys_held and self.y > 0:
                 self.vy = -11
-            if pygame.K_DOWN in keys_held and self.y < HEIGHT - self.length:
+            if pygame.K_s in keys_held and self.y < HEIGHT - self.length:
                 self.vy = 11
+            self.y += self.vy
+            self.vy = 0
+
+        else:
+            if pygame.K_w in keys_held and self.y > 0:
+                self.vy = -7
+            if pygame.K_s in keys_held and self.y < HEIGHT - self.length:
+                self.vy = 7
             self.y += self.vy
             self.vy = 0
 
