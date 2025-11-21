@@ -12,13 +12,14 @@ import time
 
 WIDTH, HEIGHT = 960 , 639
 
-img = pygame.image.load("avatar-map.jpeg")
+img = pygame.image.load("avatar_map.webp")
 img = pygame.transform.scale(img, (WIDTH, HEIGHT))
 
-#earth_img = pygame.image.load("earth_img.jpg")
-#water_img = pygame.image.load("water.png.webp")
-#air_img = pygame.image.load("")
-#fire_img = pygame.image.load()
+earth_img = pygame.image.load("earth_img.png")
+earth_img = pygame.transform.scale(earth_img, (WIDTH/3, (2*HEIGHT)/3))
+water_img = pygame.image.load("water.png.webp")
+air_img = pygame.image.load("air_img.webp")
+fire_img = pygame.image.load("fire_img.jpg")
 
 #img = pygame.image.load("avatar-map.jpeg")
 
@@ -45,7 +46,7 @@ class Player1:
         self.ice = False
         self.color=(255,255,255)
         self.length = 70
-        self.earth = False
+        self.earth = True
         self.bigtime = -1
 
     def update(self, keys_held: set[int]) -> None:
@@ -396,11 +397,11 @@ def main():
 
 
     #importing sounds?????
-    ##bounce_sound=pygame.mixer.Sound("jump.wav")
-    ##bouncewall_sound=pygame.mixer.Sound("bouncewall.wav")
+    bounce_sound=pygame.mixer.Sound("jump.wav")
+    #bouncewall_sound=pygame.mixer.Sound("bouncewall.wav")
     ##pygame.mixer.music.load(pygame.mixer.Sound(bounce_sound))
     ##pygame.mixer.music.load(pygame.mixer.Sound(bouncewall_sound))
-
+    bounce_sound.play()
     p1_effects = [player1.ice, player1.earth, player1.fast, player1.wind]
     p2_effects = [player2.ice, player2.earth, player2.fast, player2.wind]
 
