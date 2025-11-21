@@ -82,10 +82,10 @@ class Player1:
             self.y += self.vy
             self.vy = 0
 
+        #Earth effect
         if self.earth == True and pygame.K_RSHIFT in keys_held:
             self.bigtime = time.monotonic() + 3
 
-        #Earth effect
         if self.bigtime>time.monotonic():
             self.length = 150
         if self.bigtime<time.monotonic():
